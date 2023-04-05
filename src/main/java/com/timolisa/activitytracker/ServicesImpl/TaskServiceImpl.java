@@ -19,11 +19,13 @@ import java.util.Optional;
 public class TaskServiceImpl implements TaskService {
     private final TaskRepository taskRepository;
     private final TaskMapper taskMapper;
+
     @Autowired
     public TaskServiceImpl(TaskRepository taskRepository, TaskMapper taskMapper) {
         this.taskRepository = taskRepository;
         this.taskMapper = taskMapper;
     }
+
     @Override
     public void saveTask(TaskDTO taskDTO) {
         Task task = taskMapper.toTask(taskDTO);
@@ -31,15 +33,9 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public void updateTask(TaskDTO taskDTO) throws TaskNotFoundException {
-        Optional<TaskDTO> taskOptional = findTaskById(taskDTO.getId());
-        if (taskOptional.isPresent()) {
-            Task task = taskMapper.toTask(taskOptional.get());
-            taskRepository.save(task);
-        } else {
-            java.lang.String message = java.lang.String.format("Task with ID: %s not found", taskDTO.getId());
-            throw new TaskNotFoundException(message);
-        }
+    public void updateTask(TaskDTO taskDTO) {
+        Task task = taskMapper.toTask(taskDTO);
+        taskRepository.save(task);
     }
 
     @Override

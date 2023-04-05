@@ -6,47 +6,50 @@ import com.timolisa.activitytracker.enums.Status;
 import com.timolisa.activitytracker.exceptions.TaskNotFoundException;
 import jakarta.validation.Valid;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 @Controller
 @NoArgsConstructor
+@Slf4j
 public class TaskController {
     private TaskService taskService;
     @Autowired
     public TaskController(TaskService taskService) {
         this.taskService = taskService;
     }
+
     @GetMapping("/tasks")
     public ModelAndView viewAllTasks(@RequestParam(value = "status", defaultValue = "all")
                                      String status,
                                      @RequestParam(value = "successMessage", required = false)
                                      String successMessage) {
-        List<TaskDTO> tasks;
-        if (status.equals("in-progress")) {
-            tasks = taskService.findTasksByStatus(Status.IN_PROGRESS);
-        } else if (status.equals("completed")) {
-            tasks = taskService.findTasksByStatus(Status.COMPLETED);
-        } else if (status.equals("pending")) {
-            tasks = taskService.findTasksByStatus(Status.PENDING);
-        } else {
-            tasks = taskService.findAllTasks();
-        }
+        List<TaskDTO> tasks = switch (status) {
+            case "in-progress" -> taskService.findTasksByStatus(Status.IN_PROGRESS);
+            case "completed" -> taskService.findTasksByStatus(Status.COMPLETED);
+            case "pending" -> taskService.findTasksByStatus(Status.PENDING);
+            default -> taskService.findAllTasks();
+        };
         ModelAndView mav = new ModelAndView("tasks");
         mav.addObject("tasks", tasks);
         mav.addObject("taskDTO", new TaskDTO());
         if (tasks.isEmpty()) {
             mav.addObject("message", "No tasks");
         }
-        mav.addObject("successMessage", successMessage);
+        if (successMessage != null) {
+            mav.addObject("successMessage", successMessage);
+        }
         return mav;
     }
+
     @GetMapping("/tasks/{id}")
     public ModelAndView viewTask(@PathVariable Long id) throws TaskNotFoundException {
         ModelAndView mav = new ModelAndView("task-detail");
@@ -60,20 +63,28 @@ public class TaskController {
         }
         return mav;
     }
+
     @PostMapping("/tasks/updateStatus/{id}")
     public ModelAndView updateTaskStatus(@PathVariable Long id,
                                          @RequestParam("status") String status) throws TaskNotFoundException {
         Optional<TaskDTO> taskDTO = taskService.findTaskById(id);
         if (taskDTO.isPresent()) {
             taskDTO.get().setStatus(String.valueOf(status));
+            taskDTO.get().setCompletedAt(LocalDateTime.now());
             taskService.saveTask(taskDTO.get());
+            log.info("Task with ID {} Status: {}",
+                    taskDTO.get().getId(),
+                    taskDTO.get().getStatus());
         } else {
             String message = String.format("Task with ID: %s not found", id);
             throw new TaskNotFoundException(message);
         }
-        //        mav.addObject("successMessage", "Task status updated successfully");
-        return new ModelAndView("redirect:/tasks");
+        ModelAndView mav = new ModelAndView("redirect:/tasks?successMessage");
+        String successMessage = "Task status updated successfully!";
+        mav.addObject("successMessage", successMessage);
+        return mav;
     }
+
     @PostMapping("/tasks/new")
     public ModelAndView saveTask(@Valid @ModelAttribute TaskDTO taskDTO,
                                  BindingResult bindingResult) {
@@ -83,8 +94,9 @@ public class TaskController {
             mav.setViewName("redirect:/tasks");
         }
         taskService.saveTask(taskDTO);
-        mav.addObject("successMessage", "Task added successfully!");
-        mav.setViewName("redirect:/tasks");
+        String successMessage = "Task added successfully!";
+        mav.addObject("successMessage", successMessage);
+        mav.setViewName("redirect:/tasks?successMessage");
         return mav;
     }
 
@@ -100,26 +112,30 @@ public class TaskController {
         }
         return mav;
     }
+
     @PostMapping("/tasks/update")
     public ModelAndView updateTask(@ModelAttribute("taskToEdit") TaskDTO taskDTO) throws TaskNotFoundException {
-        ModelAndView mav = new ModelAndView("redirect:/tasks");
+        log.info("Task ID {}", taskDTO.getId());
+        ModelAndView mav = new ModelAndView("redirect:/tasks?successMessage");
         Optional<TaskDTO> taskOptional =
                 taskService.findTaskById(taskDTO.getId());
         if (taskOptional.isPresent()) {
             taskService.updateTask(taskDTO);
-            mav.addObject("successMessage", "Task updated!");
         } else {
             String message = String.format("Task with ID: %s not found", taskDTO.getId());
             throw new TaskNotFoundException(message);
         }
-        return mav;
-    }
-    @GetMapping("/tasks/delete/{id}")
-    public ModelAndView deleteTask(@PathVariable Long id) {
-        taskService.deleteTaskById(id);
-        ModelAndView mav = new ModelAndView("redirect:/tasks");
-        mav.addObject("successMessage", "Task deleted!");
+        String successMessage = "Task updated successfully!";
+        mav.addObject("successMessage", successMessage);
         return mav;
     }
 
+    @GetMapping("/tasks/delete/{id}")
+    public ModelAndView deleteTask(@PathVariable Long id) {
+        taskService.deleteTaskById(id);
+        ModelAndView mav = new ModelAndView("redirect:/tasks?successMessage");
+        String successMessage = "Task deleted successfully!";
+        mav.addObject("successMessage", successMessage);
+        return mav;
+    }
 }
