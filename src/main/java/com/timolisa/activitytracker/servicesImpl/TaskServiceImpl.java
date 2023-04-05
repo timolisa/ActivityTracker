@@ -1,9 +1,9 @@
-package com.timolisa.activitytracker.ServicesImpl;
+package com.timolisa.activitytracker.servicesImpl;
 
 import com.timolisa.activitytracker.DTO.TaskDTO;
-import com.timolisa.activitytracker.Model.Task;
-import com.timolisa.activitytracker.Repository.TaskRepository;
-import com.timolisa.activitytracker.Services.TaskService;
+import com.timolisa.activitytracker.entity.Task;
+import com.timolisa.activitytracker.refactor.TaskRepository;
+import com.timolisa.activitytracker.services.TaskService;
 import com.timolisa.activitytracker.enums.Status;
 import com.timolisa.activitytracker.utils.TaskMapper;
 import jakarta.transaction.Transactional;

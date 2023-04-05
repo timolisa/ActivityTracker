@@ -1,7 +1,7 @@
-package com.timolisa.activitytracker.Controller;
+package com.timolisa.activitytracker.controller;
 
 import com.timolisa.activitytracker.DTO.TaskDTO;
-import com.timolisa.activitytracker.Services.TaskService;
+import com.timolisa.activitytracker.services.TaskService;
 import com.timolisa.activitytracker.enums.Status;
 import com.timolisa.activitytracker.exceptions.TaskNotFoundException;
 import jakarta.validation.Valid;

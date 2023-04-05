@@ -1,4 +1,4 @@
-package com.timolisa.activitytracker.Model;
+package com.timolisa.activitytracker.entity;
 
 import com.timolisa.activitytracker.enums.Status;
 import jakarta.persistence.*;

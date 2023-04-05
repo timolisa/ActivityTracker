@@ -1,4 +1,4 @@
-package com.timolisa.activitytracker.Services;
+package com.timolisa.activitytracker.services;
 
 import com.timolisa.activitytracker.DTO.TaskDTO;
 import com.timolisa.activitytracker.enums.Status;

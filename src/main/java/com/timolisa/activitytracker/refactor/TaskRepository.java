@@ -1,13 +1,11 @@
-package com.timolisa.activitytracker.Repository;
+package com.timolisa.activitytracker.refactor;
 
-import com.timolisa.activitytracker.Model.Task;
+import com.timolisa.activitytracker.entity.Task;
 import com.timolisa.activitytracker.enums.Status;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.lang.NonNullApi;
 import org.springframework.stereotype.Repository;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 import java.util.Optional;

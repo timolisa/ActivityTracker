@@ -1,7 +1,7 @@
 package com.timolisa.activitytracker.utils;
 
 import com.timolisa.activitytracker.DTO.TaskDTO;
-import com.timolisa.activitytracker.Model.Task;
+import com.timolisa.activitytracker.entity.Task;
 import com.timolisa.activitytracker.enums.Status;
 import org.springframework.stereotype.Component;
 
