@@ -37,7 +37,7 @@ public class TaskServiceImpl implements TaskService {
             Task task = taskMapper.toTask(taskOptional.get());
             taskRepository.save(task);
         } else {
-            String message = String.format("Task with ID: %s not found", taskDTO.getId());
+            java.lang.String message = java.lang.String.format("Task with ID: %s not found", taskDTO.getId());
             throw new TaskNotFoundException(message);
         }
     }
@@ -57,33 +57,9 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public List<TaskDTO> findAllPendingTasks() {
-        return taskRepository.findAllPendingTasks()
-                .stream()
-                .map(taskMapper::toTaskDTO)
-                .toList();
-    }
-
-    @Override
-    public List<TaskDTO> findAllTasksInProgress() {
-        return taskRepository.findAllTasksInProgress()
-                .stream()
-                .map(taskMapper::toTaskDTO)
-                .toList();
-    }
-
-    @Override
-    public List<TaskDTO> findAllCompletedTasks() {
-        return taskRepository.findAllCompletedTasks()
-                .stream()
-                .map(taskMapper::toTaskDTO)
-                .toList();
-    }
-
-    @Override
-    public List<TaskDTO> findTasksByStatus(String status) {
+    public List<TaskDTO> findTasksByStatus(Status status) {
         return taskRepository
-                .findTaskByStatus(Status.valueOf(status))
+                .findTaskByStatus(status)
                 .stream()
                 .map(taskMapper::toTaskDTO)
                 .toList();

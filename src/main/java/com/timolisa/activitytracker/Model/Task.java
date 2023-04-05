@@ -21,10 +21,10 @@ public class Task {
     private long id;
 
     @Column(name = "title")
-    private String title;
+    private java.lang.String title;
 
     @Column(name = "description")
-    private String description;
+    private java.lang.String description;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status")

@@ -12,7 +12,7 @@ public class TaskMapper {
                 .id(task.getId())
                 .title(task.getTitle())
                 .description(task.getDescription())
-                .status(String.valueOf(task.getStatus()))
+                .status(java.lang.String.valueOf(task.getStatus()))
                 .createdAt(task.getCreatedAt())
                 .updatedAt(task.getUpdatedAt())
                 .completedAt(task.getCompletedAt())

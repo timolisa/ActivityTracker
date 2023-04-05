@@ -17,14 +17,5 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     @Query(value = "SELECT * FROM tasks WHERE id = ?1", nativeQuery = true)
     Optional<Task> findTaskById(long id);
 
-    @Query(value = "SELECT * FROM tasks WHERE status = 'PENDING'", nativeQuery = true)
-    List<Task> findAllPendingTasks();
-
-    @Query(value = "SELECT * FROM tasks WHERE status = 'IN_PROGRESS'", nativeQuery = true)
-    List<Task> findAllTasksInProgress();
-
-    @Query(value = "SELECT * FROM tasks WHERE status = 'COMPLETED'", nativeQuery = true)
-    List<Task> findAllCompletedTasks();
-
     List<Task> findTaskByStatus(Status status);
 }

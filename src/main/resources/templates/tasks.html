@@ -13,7 +13,8 @@
 <body>
 <nav class="navbar navbar-expand-md navbar-dark bg-dark">
     <a class="navbar-brand" href="#">Activity Tracker</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
@@ -25,13 +26,13 @@
                 <a class="nav-link" href="/tasks">All Tasks</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/tasks/pending">Pending Tasks</a>
+                <a class="nav-link" href="/tasks?status=pending">Pending Tasks</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/tasks/in-progress">In Progress Tasks</a>
+                <a class="nav-link" href="/tasks?status=in-progress">In Progress Tasks</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/tasks/completed">Completed Tasks</a>
+                <a class="nav-link" href="/tasks?status=completed">Completed Tasks</a>
             </li>
         </ul>
         <form class="form-inline my-2 my-lg-0" action="/tasks/search" method="GET">
@@ -46,7 +47,7 @@
     </div>
 </nav>
 
-<div class="container">
+<div class="container" style="margin-top: 50px">
     <h1>Activity Tracker</h1>
     <table class="table">
         <thead>
@@ -59,16 +60,18 @@
         </tr>
         </thead>
         <tbody>
-        <tr th:each="task : ${tasks}" >
+        <tr th:each="task : ${tasks}">
             <td th:text="${task.id}"></td>
             <td th:text="${task.title}"></td>
             <td th:text="${task.description}"></td>
             <td><span th:text="${task.status}" class="badge badge-success"></span></td>
             <td>
                 <div class="btn-group" role="group" th:if="${not #lists.isEmpty(tasks)}">
-                    <a href="#activityModal1" type="button" class="btn btn-secondary btn-sm" data-toggle="modal" data-target="#activityModal1">View Activity</a>
-                    <a href="/tasks/updateStatus/${task.id}?status=InProgress" type="button" class="btn btn-warning btn-sm">In Progress</a>
-                    <a href="/tasks/updateStatus/${task.id}?status=Completed" type="button" class="btn btn-success btn-sm">Completed</a>
+                    <a th:href="@{/tasks/{id}(id=${task.id})}" type="button" class="btn btn-secondary btn-sm">View Activity</a>
+                    <a href="/tasks/updateStatus/${task.id}?status=InProgress" type="button"
+                       class="btn btn-warning btn-sm">In Progress</a>
+                    <a href="/tasks/updateStatus/${task.id}?status=Completed" type="button"
+                       class="btn btn-success btn-sm">Completed</a>
                 </div>
             </td>
         </tr>
@@ -79,7 +82,7 @@
     </table>
 </div>
 
-<!-- Add product modal -->
+<!-- Add task modal -->
 <!-- Button trigger modal -->
 
 <!-- Modal -->
@@ -96,11 +99,13 @@
                 <form method="post" th:object="${taskDTO}" th:action="@{/tasks/new}">
                     <div class="form-group">
                         <label for="title">Title</label>
-                        <input th:field="*{title}" type="text" class="form-control" id="title" name="title" placeholder="Enter task title">
+                        <input th:field="*{title}" type="text" class="form-control" id="title" name="title"
+                               placeholder="Enter task title">
                     </div>
                     <div class="form-group">
                         <label for="description">Description</label>
-                        <textarea th:field="*{description}" class="form-control" id="description" name="description" rows="3" placeholder="Enter task description"></textarea>
+                        <textarea th:field="*{description}" class="form-control" id="description" name="description"
+                                  rows="3" placeholder="Enter task description"></textarea>
                     </div>
                     <div class="form-group">
                         <label for="status">Status</label>
@@ -119,28 +124,32 @@
         </div>
     </div>
 </div>
-<footer class="bg-light text-center py-3">
+<footer style="position: fixed; bottom: 0; width: 100%;" class="bg-light text-center py-3">
     <div class="container">
         <span>© 2023 My Website. All rights reserved.</span>
     </div>
 </footer>
 
 <!-- View Task Modal -->
-<div class="modal fade" id="activityModal1" tabindex="-1" role="dialog" aria-labelledby="activityModalLabel1" aria-hidden="true">
+<div class="modal fade" id="activityModal1" tabindex="-1" role="dialog" aria-labelledby="activityModalLabel1"
+     aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="activityModalLabel1" th:text="${editTask != null ? editTask.title : ''}"></h5>
+                <h5 class="modal-title" id="activityModalLabel1"
+                    th:text="${editTask != null ? editTask.title : ''}"></h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
                 <p th:text="${editTask != null ? editTask.description : ''}"></p>
-                <p>Status: <span class="badge badge-success" th:text="${editTask != null ? editTask.status : ''}"></span></p>
+                <p>Status: <span class="badge badge-success"
+                                 th:text="${editTask != null ? editTask.status : ''}"></span></p>
                 <p class="card-text">Created: <span th:text="${editTask != null ? editTask.createdAt : ''}"></span></p>
                 <p class="card-text">Updated: <span th:text="${editTask != null ? editTask.updatedAt : ''}"></span></p>
-                <p class="card-text">Completed: <span th:text="${editTask != null ? editTask.completedAt : ''}"></span></p>
+                <p class="card-text">Completed: <span th:text="${editTask != null ? editTask.completedAt : ''}"></span>
+                </p>
                 <a href="/tasks/edit/${editTask.id}" type="button" class="btn btn-secondary">Edit</a>
                 <a href="/tasks/delete/${editTask.id}" type="button" class="btn btn-danger">Delete</a>
             </div>

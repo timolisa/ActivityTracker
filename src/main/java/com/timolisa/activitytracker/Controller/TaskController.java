@@ -3,7 +3,9 @@ package com.timolisa.activitytracker.Controller;
 import com.timolisa.activitytracker.DTO.TaskDTO;
 import com.timolisa.activitytracker.Model.Task;
 import com.timolisa.activitytracker.Services.TaskService;
+import com.timolisa.activitytracker.enums.Status;
 import com.timolisa.activitytracker.exceptions.TaskNotFoundException;
+import com.timolisa.activitytracker.utils.DateFormatter;
 import jakarta.validation.Valid;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +14,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,10 +30,12 @@ public class TaskController {
     public ModelAndView viewAllTasks(@RequestParam(value = "status", defaultValue = "all")
                                      String status) {
         List<TaskDTO> tasks;
-        if (status.equals("inProgress")) {
-            tasks = taskService.findTasksByStatus("inProgress");
-        } else if (status.equals("Completed")) {
-            tasks = taskService.findTasksByStatus("Completed");
+        if (status.equals("in-progress")) {
+            tasks = taskService.findTasksByStatus(Status.IN_PROGRESS);
+        } else if (status.equals("completed")) {
+            tasks = taskService.findTasksByStatus(Status.COMPLETED);
+        } else if (status.equals("pending")) {
+            tasks = taskService.findTasksByStatus(Status.PENDING);
         } else {
             tasks = taskService.findAllTasks();
         }
@@ -44,34 +49,15 @@ public class TaskController {
     }
     @GetMapping("/tasks/{id}")
     public ModelAndView viewTask(@PathVariable Long id) throws TaskNotFoundException {
-        ModelAndView mav = new ModelAndView("tasks");
+        ModelAndView mav = new ModelAndView("task-detail");
         Optional<TaskDTO> optionalTask = taskService.findTaskById(id);
         if (optionalTask.isPresent()) {
-            mav.addObject("editTask", optionalTask.get());
+            TaskDTO task = optionalTask.get();
+            mav.addObject("task", task);
         } else {
             String message = String.format("Task with ID: %s not found", id);
             throw new TaskNotFoundException(message);
         }
-        return mav;
-    }
-    @GetMapping("/tasks/pending")
-    public ModelAndView viewAllPendingTasks() {
-        ModelAndView mav = new ModelAndView("tasks");
-        mav.addObject("tasks", taskService.findAllPendingTasks());
-        return mav;
-    }
-
-    @GetMapping("/tasks/in-progress")
-    public ModelAndView viewAllTasksInProgress() {
-        ModelAndView mav = new ModelAndView("tasks");
-        mav.addObject("tasks", taskService.findAllTasksInProgress());
-        return mav;
-    }
-
-    @GetMapping("/tasks/completed")
-    public ModelAndView viewAllCompletedTasks() {
-        ModelAndView mav = new ModelAndView("tasks");
-        mav.addObject("tasks", taskService.findAllCompletedTasks());
         return mav;
     }
     @PostMapping("/tasks/updateStatus/{id}")
