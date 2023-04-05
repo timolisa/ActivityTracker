@@ -1,4 +1,4 @@
-package com.timolisa.activitytracker.refactor;
+package com.timolisa.activitytracker.repository;
 
 import com.timolisa.activitytracker.entity.Task;
 import com.timolisa.activitytracker.enums.Status;
