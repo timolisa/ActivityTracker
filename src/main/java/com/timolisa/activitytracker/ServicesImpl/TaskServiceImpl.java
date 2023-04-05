@@ -5,7 +5,6 @@ import com.timolisa.activitytracker.Model.Task;
 import com.timolisa.activitytracker.Repository.TaskRepository;
 import com.timolisa.activitytracker.Services.TaskService;
 import com.timolisa.activitytracker.enums.Status;
-import com.timolisa.activitytracker.exceptions.TaskNotFoundException;
 import com.timolisa.activitytracker.utils.TaskMapper;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
