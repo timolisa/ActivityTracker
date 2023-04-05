@@ -56,6 +56,54 @@
     </div>
 
     <h1>Activity Tracker</h1>
+<!--    <table class="table">-->
+<!--        <thead>-->
+<!--        <tr>-->
+<!--            <th>Id</th>-->
+<!--            <th>Title</th>-->
+<!--            <th>Description</th>-->
+<!--            <th>Status</th>-->
+<!--            <th>Actions</th>-->
+<!--        </tr>-->
+<!--        </thead>-->
+<!--        <tbody>-->
+<!--        <tr th:each="task : ${tasks}">-->
+<!--            <td th:text="${task.id}"></td>-->
+<!--            <td th:text="${task.title}"></td>-->
+<!--            <td th:text="${task.description}"></td>-->
+<!--            <td><span th:text="${task.status}" class="badge badge-success"></span></td>-->
+<!--            <td>-->
+<!--                <div class="btn-group" role="group" th:if="${not #lists.isEmpty(tasks)}">-->
+<!--                    <a th:href="@{/tasks/{id}(id=${task.id})}" type="button" class="btn btn-secondary btn-sm">View Activity</a>-->
+<!--&lt;!&ndash;                    <a href="/tasks/updateStatus/${task.id}?status=InProgress" type="button"&ndash;&gt;-->
+<!--&lt;!&ndash;                       class="btn btn-warning btn-sm">In Progress</a>&ndash;&gt;-->
+<!--&lt;!&ndash;                    <a href="/tasks/updateStatus/${task.id}?status=Completed" type="button"&ndash;&gt;-->
+<!--&lt;!&ndash;                       class="btn btn-success btn-sm">Completed</a>&ndash;&gt;-->
+<!--                    <form th:action="@{/tasks/updateStatus/{id}(id=${task.id})}" method="post">-->
+<!--                        <input type="hidden" name="status" th:value="'IN_PROGRESS'" />-->
+<!--                        <button type="submit" class="btn btn-warning btn-sm">In Progress</button>-->
+<!--                    </form>-->
+
+<!--                    <form th:action="@{/tasks/updateStatus/{id}(id=${task.id})}" method="post">-->
+<!--                        <input type="hidden" name="status" th:value="'COMPLETED'" />-->
+<!--                        <button type="submit" class="btn btn-success btn-sm">Completed</button>-->
+<!--                    </form>-->
+<!--                </div>-->
+<!--            </td>-->
+<!--        </tr>-->
+<!--&lt;!&ndash;        <tr th:unless="${#lists.isEmpty(tasks)}">&ndash;&gt;-->
+<!--&lt;!&ndash;            <td colspan="5">No Tasks</td>&ndash;&gt;-->
+<!--&lt;!&ndash;        </tr>&ndash;&gt;-->
+
+
+<!--        </tbody>-->
+<!--    </table>-->
+
+<!--    Test -->
+<!--    <div th:if="${message}">-->
+<!--        <h2 th:text="${message}"></h2>-->
+<!--    </div>-->
+
     <table class="table">
         <thead>
         <tr>
@@ -75,15 +123,10 @@
             <td>
                 <div class="btn-group" role="group" th:if="${not #lists.isEmpty(tasks)}">
                     <a th:href="@{/tasks/{id}(id=${task.id})}" type="button" class="btn btn-secondary btn-sm">View Activity</a>
-<!--                    <a href="/tasks/updateStatus/${task.id}?status=InProgress" type="button"-->
-<!--                       class="btn btn-warning btn-sm">In Progress</a>-->
-<!--                    <a href="/tasks/updateStatus/${task.id}?status=Completed" type="button"-->
-<!--                       class="btn btn-success btn-sm">Completed</a>-->
                     <form th:action="@{/tasks/updateStatus/{id}(id=${task.id})}" method="post">
                         <input type="hidden" name="status" th:value="'IN_PROGRESS'" />
                         <button type="submit" class="btn btn-warning btn-sm">In Progress</button>
                     </form>
-
                     <form th:action="@{/tasks/updateStatus/{id}(id=${task.id})}" method="post">
                         <input type="hidden" name="status" th:value="'COMPLETED'" />
                         <button type="submit" class="btn btn-success btn-sm">Completed</button>
@@ -91,11 +134,12 @@
                 </div>
             </td>
         </tr>
-<!--        <tr th:unless="${#lists.isEmpty(tasks)}">-->
-<!--            <td colspan="5">No Tasks</td>-->
-<!--        </tr>-->
+        <tr th:if="${#lists.isEmpty(tasks)}">
+            <td colspan="5">No tasks found.</td>
+        </tr>
         </tbody>
     </table>
+
 </div>
 
 <!-- Add task modal -->

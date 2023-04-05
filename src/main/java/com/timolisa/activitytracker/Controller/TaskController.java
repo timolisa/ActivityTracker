@@ -138,4 +138,13 @@ public class TaskController {
         mav.addObject("successMessage", successMessage);
         return mav;
     }
+    @GetMapping("/tasks/search")
+    public ModelAndView searchTasks(@RequestParam(name = "query") String query) {
+        List<TaskDTO> searchResults = taskService.searchTasks(query);
+        ModelAndView mav = new ModelAndView("tasks");
+        mav.addObject("tasks", searchResults);
+        mav.addObject("taskDTO", new TaskDTO());
+        mav.addObject("successMessage", "Search Results:");
+        return mav;
+    }
 }
