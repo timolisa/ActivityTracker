@@ -64,4 +64,9 @@ public class TaskServiceImpl implements TaskService {
                 .map(taskMapper::toTaskDTO)
                 .toList();
     }
+
+    @Override
+    public void deleteTaskById(Long id) {
+        taskRepository.deleteById(id);
+    }
 }

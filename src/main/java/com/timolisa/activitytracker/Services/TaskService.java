@@ -13,4 +13,6 @@ public interface TaskService {
     List<TaskDTO> findAllTasks();
     Optional<TaskDTO> findTaskById(Long id);
     List<TaskDTO> findTasksByStatus(Status status);
+
+    void deleteTaskById(Long id);
 }

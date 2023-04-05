@@ -28,7 +28,9 @@ public class TaskController {
     }
     @GetMapping("/tasks")
     public ModelAndView viewAllTasks(@RequestParam(value = "status", defaultValue = "all")
-                                     String status) {
+                                     String status,
+                                     @RequestParam(value = "successMessage", required = false)
+                                     String successMessage) {
         List<TaskDTO> tasks;
         if (status.equals("in-progress")) {
             tasks = taskService.findTasksByStatus(Status.IN_PROGRESS);
@@ -45,6 +47,7 @@ public class TaskController {
         if (tasks.isEmpty()) {
             mav.addObject("message", "No tasks");
         }
+        mav.addObject("successMessage", successMessage);
         return mav;
     }
     @GetMapping("/tasks/{id}")
@@ -71,9 +74,8 @@ public class TaskController {
             String message = String.format("Task with ID: %s not found", id);
             throw new TaskNotFoundException(message);
         }
-        ModelAndView mav = new ModelAndView("redirect:/tasks");
-        mav.addObject("message", "Task status updated successfully");
-        return mav;
+        //        mav.addObject("successMessage", "Task status updated successfully");
+        return new ModelAndView("redirect:/tasks");
     }
     @PostMapping("/tasks/new")
     public ModelAndView saveTask(@Valid @ModelAttribute TaskDTO taskDTO,
@@ -84,7 +86,7 @@ public class TaskController {
             mav.setViewName("redirect:/tasks");
         }
         taskService.saveTask(taskDTO);
-        mav.addObject("successMessage", "Product added successfully!");
+        mav.addObject("successMessage", "Task added successfully!");
         mav.setViewName("redirect:/tasks");
         return mav;
     }
@@ -108,10 +110,19 @@ public class TaskController {
                 taskService.findTaskById(taskDTO.getId());
         if (taskOptional.isPresent()) {
             taskService.updateTask(taskDTO);
+            mav.addObject("successMessage", "Task updated!");
         } else {
             String message = String.format("Task with ID: %s not found", taskDTO.getId());
             throw new TaskNotFoundException(message);
         }
         return mav;
     }
+    @GetMapping("/tasks/delete/{id}")
+    public ModelAndView deleteTask(@PathVariable Long id) {
+        taskService.deleteTaskById(id);
+        ModelAndView mav = new ModelAndView("redirect:/tasks");
+        mav.addObject("successMessage", "Task deleted!");
+        return mav;
+    }
+
 }
