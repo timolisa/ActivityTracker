@@ -14,15 +14,17 @@ import java.util.Optional;
 
 @Repository
 public interface TaskRepository extends JpaRepository<Task, Long> {
-    @Query(value = "SELECT * FROM tasks", nativeQuery = true)
+    @Query(value = "SELECT * FROM tasks ORDER BY id ASC", nativeQuery = true)
     List<Task> findAllTasks();
 
     @Query(value = "SELECT * FROM tasks WHERE id = ?1", nativeQuery = true)
     Optional<Task> findTaskById(long id);
+
     // JPQL is used to create queries against entities to store in a RDB.
-    @Query(value = "SELECT t FROM Task t WHERE LOWER(t.title) LIKE LOWER(concat('%', :query, '%'))")
-//    @Query("SELECT t FROM Task t WHERE LOWER(t.name) LIKE LOWER(concat('%', :query, '%')) OR LOWER(t.keywords) LIKE LOWER(concat('%', :query, '%'))")
+    @Query(value = "SELECT t FROM Task t WHERE LOWER(t.title) LIKE LOWER(concat('%', :query, '%')) ORDER BY t.id ASC")
     List<Task> search(@Param("query") String query);
+
     List<Task> findTaskByStatus(Status status);
+
     void deleteById(Long id);
 }

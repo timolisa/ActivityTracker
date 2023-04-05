@@ -9,10 +9,16 @@ import java.util.Optional;
 
 public interface TaskService {
     void saveTask(TaskDTO taskDTO);
+
     void updateTask(TaskDTO taskDTO) throws TaskNotFoundException;
+
     List<TaskDTO> findAllTasks();
+
     Optional<TaskDTO> findTaskById(Long id);
+
     List<TaskDTO> findTasksByStatus(Status status);
+
     void deleteTaskById(Long id);
+
     List<TaskDTO> searchTasks(String query);
 }

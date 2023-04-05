@@ -15,13 +15,19 @@ import java.time.LocalDateTime;
 @Builder
 public class TaskDTO {
     private long id;
+
     @NotBlank(message = "Enter a title")
     @Length(min = 5, max = 255, message = "Title must contain 5 or more characters")
     private String title;
+
     @NotBlank(message = "Enter a description")
     private String description;
+
     private String status;
+
     private LocalDateTime createdAt;
+
     private LocalDateTime updatedAt;
+
     private LocalDateTime completedAt;
 }
