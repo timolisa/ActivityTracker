@@ -12,7 +12,7 @@
 </head>
 <body>
 <nav class="navbar navbar-expand-md navbar-dark bg-dark">
-    <a class="navbar-brand" th:href="@{/tasks/all}">Activity Tracker</a>
+    <a class="navbar-brand" th:href="@{/tasks}">Activity Tracker</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
             aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -75,10 +75,19 @@
             <td>
                 <div class="btn-group" role="group" th:if="${not #lists.isEmpty(tasks)}">
                     <a th:href="@{/tasks/{id}(id=${task.id})}" type="button" class="btn btn-secondary btn-sm">View Activity</a>
-                    <a href="/tasks/updateStatus/${task.id}?status=InProgress" type="button"
-                       class="btn btn-warning btn-sm">In Progress</a>
-                    <a href="/tasks/updateStatus/${task.id}?status=Completed" type="button"
-                       class="btn btn-success btn-sm">Completed</a>
+<!--                    <a href="/tasks/updateStatus/${task.id}?status=InProgress" type="button"-->
+<!--                       class="btn btn-warning btn-sm">In Progress</a>-->
+<!--                    <a href="/tasks/updateStatus/${task.id}?status=Completed" type="button"-->
+<!--                       class="btn btn-success btn-sm">Completed</a>-->
+                    <form th:action="@{/tasks/updateStatus/{id}(id=${task.id})}" method="post">
+                        <input type="hidden" name="status" th:value="'IN_PROGRESS'" />
+                        <button type="submit" class="btn btn-warning btn-sm">In Progress</button>
+                    </form>
+
+                    <form th:action="@{/tasks/updateStatus/{id}(id=${task.id})}" method="post">
+                        <input type="hidden" name="status" th:value="'COMPLETED'" />
+                        <button type="submit" class="btn btn-success btn-sm">Completed</button>
+                    </form>
                 </div>
             </td>
         </tr>
