@@ -2,10 +2,7 @@ package com.timolisa.activitytracker.Model;
 
 import com.timolisa.activitytracker.enums.Status;
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -15,6 +12,8 @@ import java.time.LocalDateTime;
 @Setter
 @ToString
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Task {
     @Id
     @SequenceGenerator(name = "task_seq", sequenceName = "task_sequence", allocationSize = 1)

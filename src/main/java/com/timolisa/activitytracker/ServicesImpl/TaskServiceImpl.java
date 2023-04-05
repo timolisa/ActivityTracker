@@ -4,12 +4,16 @@ import com.timolisa.activitytracker.DTO.TaskDTO;
 import com.timolisa.activitytracker.Model.Task;
 import com.timolisa.activitytracker.Repository.TaskRepository;
 import com.timolisa.activitytracker.Services.TaskService;
+import com.timolisa.activitytracker.enums.Status;
+import com.timolisa.activitytracker.exceptions.TaskNotFoundException;
 import com.timolisa.activitytracker.utils.TaskMapper;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
+
 @Service
 @Transactional
 public class TaskServiceImpl implements TaskService {
@@ -25,6 +29,25 @@ public class TaskServiceImpl implements TaskService {
         Task task = taskMapper.toTask(taskDTO);
         taskRepository.save(task);
     }
+
+    @Override
+    public void updateTask(TaskDTO taskDTO) throws TaskNotFoundException {
+        Optional<TaskDTO> taskOptional = findTaskById(taskDTO.getId());
+        if (taskOptional.isPresent()) {
+            Task task = taskMapper.toTask(taskOptional.get());
+            taskRepository.save(task);
+        } else {
+            String message = String.format("Task with ID: %s not found", taskDTO.getId());
+            throw new TaskNotFoundException(message);
+        }
+    }
+
+    @Override
+    public Optional<TaskDTO> findTaskById(Long id) {
+        Optional<Task> taskOptional = taskRepository.findTaskById(id);
+        return taskOptional.map(taskMapper::toTaskDTO);
+    }
+
     @Override
     public List<TaskDTO> findAllTasks() {
         return taskRepository.findAllTasks()
@@ -58,8 +81,11 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public TaskDTO findTaskById(Long id) {
-        return taskMapper
-                .toTaskDTO(taskRepository.findTaskById(id));
+    public List<TaskDTO> findTasksByStatus(String status) {
+        return taskRepository
+                .findTaskByStatus(Status.valueOf(status))
+                .stream()
+                .map(taskMapper::toTaskDTO)
+                .toList();
     }
 }
