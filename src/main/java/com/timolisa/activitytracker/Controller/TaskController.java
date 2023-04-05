@@ -1,11 +1,9 @@
 package com.timolisa.activitytracker.Controller;
 
 import com.timolisa.activitytracker.DTO.TaskDTO;
-import com.timolisa.activitytracker.Model.Task;
 import com.timolisa.activitytracker.Services.TaskService;
 import com.timolisa.activitytracker.enums.Status;
 import com.timolisa.activitytracker.exceptions.TaskNotFoundException;
-import com.timolisa.activitytracker.utils.DateFormatter;
 import jakarta.validation.Valid;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +12,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
