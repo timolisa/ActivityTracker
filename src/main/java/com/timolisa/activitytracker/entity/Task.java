@@ -30,6 +30,10 @@ public class Task {
     @Column(name = "status")
     private Status status;
 
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
     @Column(name = "created_at")
     @Temporal(value = TemporalType.TIMESTAMP)
     private LocalDateTime createdAt;
