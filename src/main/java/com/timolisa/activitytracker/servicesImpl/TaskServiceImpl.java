@@ -52,6 +52,13 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    public List<TaskDTO> findTasksForUser(Long userId) {
+        return taskRepository.findTasksByUserId(userId).stream()
+                .map(taskMapper::toTaskDTO)
+                .toList();
+    }
+
+    @Override
     public List<TaskDTO> findTasksByStatus(Status status) {
         return taskRepository
                 .findTaskByStatus(status)

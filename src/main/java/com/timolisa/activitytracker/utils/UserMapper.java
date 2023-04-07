@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 public class UserMapper {
     public UserDTO toUserDTO(User user) {
         return UserDTO.builder()
+                .id(user.getId())
                 .username(user.getUsername())
                 .email(user.getEmail())
                 .password(user.getPassword())

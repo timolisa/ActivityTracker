@@ -16,6 +16,8 @@ public interface TaskService {
 
     Optional<TaskDTO> findTaskById(Long id);
 
+    List<TaskDTO> findTasksForUser(Long userId);
+
     List<TaskDTO> findTasksByStatus(Status status);
 
     void deleteTaskById(Long id);

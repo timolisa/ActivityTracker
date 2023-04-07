@@ -15,6 +15,9 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     @Query(value = "SELECT * FROM tasks ORDER BY id ASC", nativeQuery = true)
     List<Task> findAllTasks();
 
+    @Query(value = "SELECT * FROM tasks WHERE user_id = :userId ORDER BY id ASC ", nativeQuery = true)
+    List<Task> findTasksByUserId(@Param("userId") Long userId);
+
     @Query(value = "SELECT * FROM tasks WHERE id = ?1", nativeQuery = true)
     Optional<Task> findTaskById(long id);
 
