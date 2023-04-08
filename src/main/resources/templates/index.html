@@ -3,32 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
-  <link rel="stylesheet" href="../static/css/styles.css">
+    <link rel="stylesheet" href="../static/form.css">
 </head>
 <body>
 <div class="login-box">
-  <h2>Login</h2>
-  <form>
-    <div class="user-box">
-      <input type="text" name="" required="">
-      <label>Username</label>
-    </div>
-    <div class="user-box">
-      <input type="password" name="" required="">
-      <label>Password</label>
-    </div>
-    <p style="color: aqua;">New User? Sign up <a style="display: contents;
+    <h2>Login</h2>
+    <form method="post" th:action="@{/login}" th:object="${userDTO}">
+        <div class="user-box">
+            <p th:if="${#fields.hasErrors('username')}" class="alert alert-red" th:errors="*{username}"></p>
+            <input th:field="*{username}" type="text" name="" required="">
+            <label>Username</label>
+        </div>
+        <div class="user-box">
+            <p th:if="${#fields.hasErrors('password')}" class="alert alert-red" th:errors="*{password}"></p>
+            <input th:field="*{password}" type="password" name="" required="">
+            <label>Password</label>
+        </div>
+        <p style="color: aqua;">New User? Sign up <a style="display: contents;
     text-transform: lowercase;
     letter-spacing: normal;
-    color: gold;" href="">here</a></p>
-    <a href="#">
-      <span></span>
-      <span></span>
-      <span></span>
-      <span></span>
-      Submit
-    </a>
-  </form>
+    color: gold;" th:href="@{/register}">here</a></p>
+        <button type="submit">
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            Submit
+        </button>
+    </form>
 </div>
 </body>
 </html>

@@ -1,9 +1,11 @@
 package com.timolisa.activitytracker.controller;
 
 import com.timolisa.activitytracker.DTO.TaskDTO;
+import com.timolisa.activitytracker.DTO.UserDTO;
 import com.timolisa.activitytracker.services.TaskService;
 import com.timolisa.activitytracker.enums.Status;
 import com.timolisa.activitytracker.exceptions.TaskNotFoundException;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +24,7 @@ import java.util.Optional;
 @Slf4j
 public class TaskController {
     private TaskService taskService;
+
     @Autowired
     public TaskController(TaskService taskService) {
         this.taskService = taskService;
@@ -31,14 +34,24 @@ public class TaskController {
     public ModelAndView viewAllTasks(@RequestParam(value = "status", defaultValue = "all")
                                      String status,
                                      @RequestParam(value = "successMessage", required = false)
-                                     String successMessage) {
+                                     String successMessage,
+                                     HttpSession httpSession) {
+        Long userId = (Long) httpSession.getAttribute("userId");
+
+        ModelAndView mav = new ModelAndView();
+        if (userId == null) {
+            mav.setViewName("redirect:/");
+            return mav;
+        }
+
         List<TaskDTO> tasks = switch (status) {
-            case "in-progress" -> taskService.findTasksByStatus(Status.IN_PROGRESS);
-            case "completed" -> taskService.findTasksByStatus(Status.COMPLETED);
-            case "pending" -> taskService.findTasksByStatus(Status.PENDING);
-            default -> taskService.findAllTasks();
+            case "in-progress" -> taskService.findTasksByUserIdAndStatus(Status.IN_PROGRESS, userId);
+            case "completed" -> taskService.findTasksByUserIdAndStatus(Status.COMPLETED, userId);
+            case "pending" -> taskService.findTasksByUserIdAndStatus(Status.PENDING, userId);
+            default -> taskService.findTasksForUser(userId);
         };
-        ModelAndView mav = new ModelAndView("tasks");
+
+        mav.setViewName("tasks");
         mav.addObject("tasks", tasks);
         mav.addObject("taskDTO", new TaskDTO());
         if (tasks.isEmpty()) {
@@ -51,9 +64,14 @@ public class TaskController {
     }
 
     @GetMapping("/tasks/{id}")
-    public ModelAndView viewTask(@PathVariable Long id) throws TaskNotFoundException {
+    public ModelAndView viewTask(@PathVariable Long id, HttpSession httpSession) throws TaskNotFoundException {
         ModelAndView mav = new ModelAndView("task-detail");
-        Optional<TaskDTO> optionalTask = taskService.findTaskById(id);
+        Long userId = (Long) httpSession.getAttribute("userId");
+        Optional<TaskDTO> optionalTask = taskService.findTaskForUser(id, userId);
+
+        if (userId == null) {
+            return new ModelAndView("index");
+        }
         if (optionalTask.isPresent()) {
             TaskDTO task = optionalTask.get();
             mav.addObject("task", task);
@@ -66,19 +84,28 @@ public class TaskController {
 
     @PostMapping("/tasks/updateStatus/{id}")
     public ModelAndView updateTaskStatus(@PathVariable Long id,
-                                         @RequestParam("status") String status) throws TaskNotFoundException {
-        Optional<TaskDTO> taskDTO = taskService.findTaskById(id);
-        if (taskDTO.isPresent()) {
-            taskDTO.get().setStatus(String.valueOf(status));
-            taskDTO.get().setCompletedAt(LocalDateTime.now());
-            taskService.saveTask(taskDTO.get());
-            log.info("Task with ID {} Status: {}",
-                    taskDTO.get().getId(),
-                    taskDTO.get().getStatus());
-        } else {
-            String message = String.format("Task with ID: %s not found", id);
-            throw new TaskNotFoundException(message);
+                                         @RequestParam("status") String status,
+                                         HttpSession httpSession) throws TaskNotFoundException {
+        Long userId = (Long) httpSession.getAttribute("userId");
+
+        if (userId == null) {
+            return new ModelAndView("index");
         }
+
+        Optional<TaskDTO> optionalTaskDTO = taskService.findTaskForUser(id, userId);
+        TaskDTO taskDTO = optionalTaskDTO.orElseThrow(() -> {
+            String message = String.format("Task with ID: %s not found", id);
+            return new TaskNotFoundException(message);
+        });
+
+        taskDTO.setStatus(status);
+        taskDTO.setCompletedAt(LocalDateTime.now());
+        taskService.saveTaskWithUserId(taskDTO, userId);
+
+        log.info("Task with ID {} Status: {}",
+                taskDTO.getId(),
+                taskDTO.getStatus());
+
         ModelAndView mav = new ModelAndView("redirect:/tasks?successMessage");
         String successMessage = "Task status updated successfully!";
         mav.addObject("successMessage", successMessage);
@@ -87,13 +114,23 @@ public class TaskController {
 
     @PostMapping("/tasks/new")
     public ModelAndView saveTask(@Valid @ModelAttribute TaskDTO taskDTO,
-                                 BindingResult bindingResult) {
+                                 BindingResult bindingResult,
+                                 HttpSession httpSession) {
+        Long userId = (Long) httpSession.getAttribute("userId");
+
+        if (userId == null) {
+            return new ModelAndView("index");
+        }
         ModelAndView mav = new ModelAndView();
         if (bindingResult.hasErrors()) {
             mav.addObject("errorMessage", "invalid fields entered");
             mav.setViewName("redirect:/tasks");
         }
-        taskService.saveTask(taskDTO);
+        UserDTO user = new UserDTO();
+        user.setId(userId);
+
+        taskDTO.setUser(user);
+        taskService.saveTaskWithUserId(taskDTO, userId);
         String successMessage = "Task added successfully!";
         mav.addObject("successMessage", successMessage);
         mav.setViewName("redirect:/tasks?successMessage");
@@ -101,26 +138,42 @@ public class TaskController {
     }
 
     @GetMapping("/tasks/edit/{id}")
-    public ModelAndView editTask(@PathVariable Long id) throws TaskNotFoundException {
+    public ModelAndView editTask(@PathVariable Long id,
+                                 HttpSession httpSession) throws TaskNotFoundException {
+        Long userId = (Long) httpSession.getAttribute("userId");
+
+        if (userId == null) {
+            return new ModelAndView("index");
+        }
+
         Optional<TaskDTO> taskToEdit = taskService.findTaskById(id);
         ModelAndView mav = new ModelAndView("edit-task");
-        if (taskToEdit.isPresent()) {
-            mav.addObject("taskToEdit", taskToEdit.get());
-        } else {
+
+        TaskDTO taskDTO = taskToEdit.orElseThrow(() -> {
             String message = String.format("Task with ID: %s not found", id);
-            throw new TaskNotFoundException(message);
-        }
+           return new TaskNotFoundException(message);
+        });
+        mav.addObject("taskToEdit", taskDTO);
+
         return mav;
     }
 
     @PostMapping("/tasks/update")
-    public ModelAndView updateTask(@ModelAttribute("taskToEdit") TaskDTO taskDTO) throws TaskNotFoundException {
+    public ModelAndView updateTask(@ModelAttribute("taskToEdit") TaskDTO taskDTO,
+                                   HttpSession httpSession) throws TaskNotFoundException {
         log.info("Task ID {}", taskDTO.getId());
+        Long userId = (Long) httpSession.getAttribute("userId");
+
+        if (userId == null) {
+            return new ModelAndView("index");
+        }
+
         ModelAndView mav = new ModelAndView("redirect:/tasks?successMessage");
         Optional<TaskDTO> taskOptional =
                 taskService.findTaskById(taskDTO.getId());
+
         if (taskOptional.isPresent()) {
-            taskService.updateTask(taskDTO);
+            taskService.updateTask(taskDTO, userId);
         } else {
             String message = String.format("Task with ID: %s not found", taskDTO.getId());
             throw new TaskNotFoundException(message);
@@ -131,8 +184,25 @@ public class TaskController {
     }
 
     @GetMapping("/tasks/delete/{id}")
-    public ModelAndView deleteTask(@PathVariable Long id) {
-        taskService.deleteTaskById(id);
+    public ModelAndView deleteTask(@PathVariable Long id,
+                                   HttpSession httpSession) throws TaskNotFoundException {
+        Long userId = (Long) httpSession.getAttribute("userId");
+
+        if (userId == null) {
+            return new ModelAndView("index");
+        }
+        Optional<TaskDTO> taskDTOOptional = taskService.findTaskById(id);
+
+        if (taskDTOOptional.isPresent()) {
+            TaskDTO taskDTO = taskDTOOptional.get();
+            if (!taskDTO.getUser().getId().equals(userId)) {
+                throw new RuntimeException("You are not authorized to delete this task");
+            }
+            taskService.deleteTaskById(id);
+        } else {
+            String message = String.format("Task with ID: %s not found", id);
+            throw new TaskNotFoundException(message);
+        }
         ModelAndView mav = new ModelAndView("redirect:/tasks?successMessage");
         String successMessage = "Task deleted successfully!";
         mav.addObject("successMessage", successMessage);
@@ -140,8 +210,15 @@ public class TaskController {
     }
 
     @GetMapping("/tasks/search")
-    public ModelAndView searchTasks(@RequestParam(name = "query") String query) {
-        List<TaskDTO> searchResults = taskService.searchTasks(query);
+    public ModelAndView searchTasks(@RequestParam(name = "query") String query,
+                                    HttpSession httpSession) {
+        Long userId = (Long) httpSession.getAttribute("userId");
+
+        if (userId == null) {
+            return new ModelAndView("index");
+        }
+
+        List<TaskDTO> searchResults = taskService.searchTasks(query, userId);
         ModelAndView mav = new ModelAndView("tasks");
         mav.addObject("tasks", searchResults);
         mav.addObject("taskDTO", new TaskDTO());

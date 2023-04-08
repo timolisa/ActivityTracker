@@ -28,16 +28,11 @@ public class User {
 
     @Column(name = "password")
     private String password;
-    private String salt;
 
     public User(String username, String email, String password) {
         this.username = username;
         this.email = email;
-        this.salt = BCrypt.gensalt();
-        this.password = BCrypt.hashpw(password, salt);
-    }
-    public boolean checkPassword(String password, String hashedPassword) {
-        return BCrypt.checkpw(password, hashedPassword);
+        this.password = password;
     }
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)

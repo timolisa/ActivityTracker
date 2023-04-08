@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 @NoArgsConstructor
-@AllArgsConstructor
 public class UserMapper {
     public UserDTO toUserDTO(User user) {
         return UserDTO.builder()

@@ -15,17 +15,26 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     @Query(value = "SELECT * FROM tasks ORDER BY id ASC", nativeQuery = true)
     List<Task> findAllTasks();
 
-    @Query(value = "SELECT * FROM tasks WHERE user_id = :userId ORDER BY id ASC ", nativeQuery = true)
-    List<Task> findTasksByUserId(@Param("userId") Long userId);
-
     @Query(value = "SELECT * FROM tasks WHERE id = ?1", nativeQuery = true)
     Optional<Task> findTaskById(long id);
 
+    @Query(value = "SELECT * FROM tasks WHERE user_id = :userId ORDER BY id ASC ", nativeQuery = true)
+    List<Task> findTasksByUser(@Param("userId") Long userId);
+
+    @Query(value = "SELECT * FROM tasks WHERE id = :id AND user_id = :userId", nativeQuery = true)
+    Optional<Task> findTaskForUser(@Param("id") Long id, @Param("userId") Long userId);
+
     // JPQL is used to create queries against entities to store in a RDB.
-    @Query(value = "SELECT t FROM Task t WHERE LOWER(t.title) LIKE LOWER(concat('%', :query, '%')) ORDER BY t.id ASC")
-    List<Task> search(@Param("query") String query);
+    @Query(value = "SELECT t FROM Task t WHERE t.id = :userId AND LOWER(t.title) LIKE LOWER(concat('%', :query, '%')) ORDER BY t.id ASC")
+    List<Task> search(@Param("query") String query, @Param("userId") Long userId);
+
+    @Query(value = "INSERT INTO tasks (title, description, status, user_id) VALUES (:title, :description, :status, :user_id)", nativeQuery = true)
+    void saveTaskWithUserId(@Param("title") String title, @Param("description") String description, @Param("status") Status status, @Param("user_id") Long userId);
 
     List<Task> findTaskByStatus(Status status);
+
+    @Query(value = "SELECT * FROM tasks WHERE user_id = :userId AND status = :status", nativeQuery = true)
+    List<Task> findTasksByUserIdAndStatus(@Param("status") Status status, @Param("userId") Long userId);
 
     void deleteById(Long id);
 }

@@ -3,39 +3,39 @@
 <head>
   <meta charset="UTF-8">
   <title>Title</title>
-  <link rel="stylesheet" href="../static/css/styles.css">
+  <link rel="stylesheet" href="../static/form.css">
 </head>
 <body>
 <div class="login-box">
-  <h2>Login</h2>
-  <form>
+  <h2>Register with us</h2>
+  <form method="post" th:action="@{/register/user}" th:object="${userDTO}">
     <div class="user-box">
-      <input type="text" name="" required="">
+      <p th:if="${#fields.hasErrors('username')}" class="alert alert-red" th:errors="*{username}"></p>
+      <input th:field="*{username}" type="text" name="" required="">
       <label>Username</label>
     </div>
     <div class="user-box">
-      <input type="email" name="" required="">
+      <p th:if="${#fields.hasErrors('email')}" class="alert alert-red" th:errors="*{email}"></p>
+      <input th:field="*{email}" type="email" name="" required="">
       <label>Email</label>
     </div>
     <div class="user-box">
-      <input type="tel" name="" required="">
-      <label>Phone Number</label>
-    </div>
-    <div class="user-box">
-      <input type="password" name="" required="">
+      <p th:if="${#fields.hasErrors('password')}" class="alert alert-red" th:errors="*{password}"></p>
+      <input th:field="*{password}" type="password" name="" required="">
       <label>Password</label>
     </div>
     <div class="user-box">
-      <input type="password" name="" required="">
+      <p th:if="${#fields.hasErrors('repeatPassword')}" class="alert alert-red" th:errors="*{repeatPassword}"></p>
+      <input th:field="*{repeatPassword}" type="password" name="" required="">
       <label>Repeat Password</label>
     </div>
-    <a href="#">
+    <button type="submit">
       <span></span>
       <span></span>
       <span></span>
       <span></span>
       Submit
-    </a>
+    </button>
   </form>
 </div>
 </body>

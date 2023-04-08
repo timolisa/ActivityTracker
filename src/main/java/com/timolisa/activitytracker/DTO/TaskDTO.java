@@ -25,6 +25,8 @@ public class TaskDTO {
 
     private String status;
 
+    private UserDTO user;
+
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;

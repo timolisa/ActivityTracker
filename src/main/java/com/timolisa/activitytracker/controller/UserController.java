@@ -2,8 +2,10 @@ package com.timolisa.activitytracker.controller;
 
 import com.timolisa.activitytracker.DTO.TaskDTO;
 import com.timolisa.activitytracker.DTO.UserDTO;
+import com.timolisa.activitytracker.entity.User;
 import com.timolisa.activitytracker.services.TaskService;
 import com.timolisa.activitytracker.services.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
@@ -27,7 +30,7 @@ public class UserController {
         this.taskService = taskService;
     }
 
-    @GetMapping("/")
+    @GetMapping(value = {"/", "/index"})
     public ModelAndView showLoginForm() {
         ModelAndView mav = new ModelAndView("index");
         mav.addObject("userDTO", new UserDTO());
@@ -50,7 +53,7 @@ public class UserController {
         List<TaskDTO> tasks = taskService
                 .findTasksForUser(existingUser.getId());
         httpSession.setAttribute("tasks", tasks);
-        httpSession.setAttribute("user", existingUser);
+        httpSession.setAttribute("userId", existingUser.getId());
         mav.setViewName("redirect:/tasks");
         return mav;
     }
@@ -63,10 +66,37 @@ public class UserController {
     }
 
     @PostMapping("/register/user")
-    public ModelAndView registerUser(@Valid @ModelAttribute UserDTO userDTO,
-                                     BindingResult bindingResult) {
-        UserDTO existingUser =
-        ModelAndView mav = new ModelAndView("index");
+    public String registerUser(@Valid @ModelAttribute UserDTO userDTO,
+                                     BindingResult bindingResult,
+                                     RedirectAttributes redirectAttributes) {
+        User existingUser = userService.findByEmail(userDTO.getEmail());
 
+        if (existingUser != null
+                && existingUser.getEmail() != null
+                && !existingUser.getEmail().isEmpty()) {
+            bindingResult.rejectValue("email", "", "There is already an account with this email.");
+        }
+
+        if (bindingResult.hasErrors()) {
+            redirectAttributes.addAttribute("userDTO", new UserDTO());
+            return ("redirect:/register");
+        }
+
+        if (!userDTO.getPassword()
+                .equals(userDTO.getRepeatPassword())) {
+            bindingResult.rejectValue("errorPassword", "", "Passwords do not match");
+            return "redirect:/register";
+        }
+
+        userService.saveUser(userDTO);
+        redirectAttributes.addFlashAttribute("successMessage", "Registration successful");
+        return "redirect:/";
+    }
+
+    @GetMapping("/logout")
+    public String logout(HttpServletRequest request) {
+        HttpSession userSession = request.getSession();
+        userSession.invalidate();
+        return "redirect:/index";
     }
 }
