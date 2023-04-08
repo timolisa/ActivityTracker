@@ -26,13 +26,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDTO findById(Long userId) {
-        Optional<User> optionalUser = userRepository.findById(userId);
-        assert optionalUser.orElse(null) != null;
-        return userMapper.toUserDTO(optionalUser.orElse(null));
-    }
-
-    @Override
     public void saveUser(UserDTO userDTO) {
         User user = userMapper.toUser(userDTO);
         log.info("User to save: {}", user);
