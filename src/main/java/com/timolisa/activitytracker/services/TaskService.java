@@ -8,11 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface TaskService {
-    void saveTaskWithUserId(TaskDTO taskDTO, Long userId);
-
-    void updateTask(TaskDTO taskDTO, Long userId) throws TaskNotFoundException;
-
-    List<TaskDTO> findAllTasks();
+    void saveTask(TaskDTO taskDTO, Long userId);
 
     Optional<TaskDTO> findTaskById(Long id);
 
@@ -20,8 +16,6 @@ public interface TaskService {
 
     Optional<TaskDTO> findTaskForUser(Long id, Long userId);
     List<TaskDTO> findTasksByUserIdAndStatus(Status status, Long userId);
-
-    List<TaskDTO> findTasksByStatus(Status status);
 
     void deleteTaskById(Long id);
 

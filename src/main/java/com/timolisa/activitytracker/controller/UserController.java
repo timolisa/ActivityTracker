@@ -8,6 +8,7 @@ import com.timolisa.activitytracker.services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -20,6 +21,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.List;
 
 @Controller
+@Slf4j
 public class UserController {
     private final UserService userService;
     private final TaskService taskService;
@@ -71,15 +73,12 @@ public class UserController {
                                      RedirectAttributes redirectAttributes) {
         User existingUser = userService.findByEmail(userDTO.getEmail());
 
+        log.info("Existing user for registration: {}", existingUser);
+
         if (existingUser != null
                 && existingUser.getEmail() != null
                 && !existingUser.getEmail().isEmpty()) {
             bindingResult.rejectValue("email", "", "There is already an account with this email.");
-        }
-
-        if (bindingResult.hasErrors()) {
-            redirectAttributes.addAttribute("userDTO", new UserDTO());
-            return ("redirect:/register");
         }
 
         if (!userDTO.getPassword()

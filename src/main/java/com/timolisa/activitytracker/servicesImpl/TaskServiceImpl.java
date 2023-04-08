@@ -2,7 +2,6 @@ package com.timolisa.activitytracker.servicesImpl;
 
 import com.timolisa.activitytracker.DTO.TaskDTO;
 import com.timolisa.activitytracker.entity.Task;
-import com.timolisa.activitytracker.entity.User;
 import com.timolisa.activitytracker.repository.TaskRepository;
 import com.timolisa.activitytracker.repository.UserRepository;
 import com.timolisa.activitytracker.services.TaskService;
@@ -32,26 +31,11 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public void saveTaskWithUserId(TaskDTO taskDTO, Long userId) {
+    public void saveTask(TaskDTO taskDTO, Long userId) {
         Task task = taskMapper.toTask(taskDTO);
-        User user = userRepository.findById(userId).orElse(null);
-        task.setUser(user);
-        log.info("Task to be saved: {} and userId = {}", task, userId);
-        taskRepository
-                .saveTaskWithUserId(task.getTitle(),
-                task.getDescription(),
-                        task.getStatus(),
-                        userId);
-    }
-
-    @Override
-    public void updateTask(TaskDTO taskDTO, Long userId) {
-        Task task = taskMapper.toTask(taskDTO);
-        User user = userRepository.findById(userId).orElse(null);
-        task.setUser(user);
-        taskRepository.saveTaskWithUserId(task.getTitle(),
-                task.getDescription(), task.getStatus(),
-                userId);
+        task.setUser(userRepository.findById(userId).orElse(null));
+        log.info("Task in Service Impl, checking the user: {}", task.getUser());
+        taskRepository.save(task);
     }
 
     @Override
@@ -60,13 +44,6 @@ public class TaskServiceImpl implements TaskService {
         return taskOptional.map(taskMapper::toTaskDTO);
     }
 
-    @Override
-    public List<TaskDTO> findAllTasks() {
-        return taskRepository.findAllTasks()
-                .stream()
-                .map(taskMapper::toTaskDTO)
-                .toList();
-    }
     // USER PART: fix.
     @Override
     public List<TaskDTO> findTasksForUser(Long userId) {
@@ -83,16 +60,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public List<TaskDTO> findTasksByUserIdAndStatus(Status status, Long userId) {
-        return taskRepository.findTasksByUserIdAndStatus(status, userId)
-                .stream()
-                .map(taskMapper::toTaskDTO)
-                .toList();
-    }
-
-    @Override
-    public List<TaskDTO> findTasksByStatus(Status status) {
-        return taskRepository
-                .findTaskByStatus(status)
+        return taskRepository.findTasksByUserIdAndStatus(userId, status)
                 .stream()
                 .map(taskMapper::toTaskDTO)
                 .toList();
@@ -105,7 +73,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public List<TaskDTO> searchTasks(String query, Long userId) {
-        return taskRepository.search(query, userId)
+        return taskRepository.search(userId, query)
                 .stream()
                 .map(taskMapper::toTaskDTO)
                 .toList();

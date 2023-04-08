@@ -2,19 +2,17 @@ package com.timolisa.activitytracker.repository;
 
 import com.timolisa.activitytracker.entity.Task;
 import com.timolisa.activitytracker.enums.Status;
+import lombok.NonNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
 import java.util.List;
+
 import java.util.Optional;
 
 @Repository
 public interface TaskRepository extends JpaRepository<Task, Long> {
-    @Query(value = "SELECT * FROM tasks ORDER BY id ASC", nativeQuery = true)
-    List<Task> findAllTasks();
-
     @Query(value = "SELECT * FROM tasks WHERE id = ?1", nativeQuery = true)
     Optional<Task> findTaskById(long id);
 
@@ -25,16 +23,11 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     Optional<Task> findTaskForUser(@Param("id") Long id, @Param("userId") Long userId);
 
     // JPQL is used to create queries against entities to store in a RDB.
-    @Query(value = "SELECT t FROM Task t WHERE t.id = :userId AND LOWER(t.title) LIKE LOWER(concat('%', :query, '%')) ORDER BY t.id ASC")
-    List<Task> search(@Param("query") String query, @Param("userId") Long userId);
+    @Query(value = "SELECT t FROM Task t WHERE t.user.id = :userId AND LOWER(t.title) LIKE LOWER(concat('%', :query, '%')) ORDER BY t.id ASC")
+    List<Task> search(@Param("userId") Long userId, @Param("query") String query);
 
-    @Query(value = "INSERT INTO tasks (title, description, status, user_id) VALUES (:title, :description, :status, :user_id)", nativeQuery = true)
-    void saveTaskWithUserId(@Param("title") String title, @Param("description") String description, @Param("status") Status status, @Param("user_id") Long userId);
+    @Query(value = "SELECT t FROM Task t WHERE t.user.id = :userId AND t.status = :status")
+    List<Task> findTasksByUserIdAndStatus(@Param("userId") Long userId, @Param("status") Status status);
 
-    List<Task> findTaskByStatus(Status status);
-
-    @Query(value = "SELECT * FROM tasks WHERE user_id = :userId AND status = :status", nativeQuery = true)
-    List<Task> findTasksByUserIdAndStatus(@Param("status") Status status, @Param("userId") Long userId);
-
-    void deleteById(Long id);
+    void deleteById(@NonNull Long id);
 }

@@ -5,6 +5,7 @@ import com.timolisa.activitytracker.DTO.UserDTO;
 import com.timolisa.activitytracker.services.TaskService;
 import com.timolisa.activitytracker.enums.Status;
 import com.timolisa.activitytracker.exceptions.TaskNotFoundException;
+import com.timolisa.activitytracker.services.UserService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.NoArgsConstructor;
@@ -100,7 +101,7 @@ public class TaskController {
 
         taskDTO.setStatus(status);
         taskDTO.setCompletedAt(LocalDateTime.now());
-        taskService.saveTaskWithUserId(taskDTO, userId);
+        taskService.saveTask(taskDTO, userId);
 
         log.info("Task with ID {} Status: {}",
                 taskDTO.getId(),
@@ -126,11 +127,7 @@ public class TaskController {
             mav.addObject("errorMessage", "invalid fields entered");
             mav.setViewName("redirect:/tasks");
         }
-        UserDTO user = new UserDTO();
-        user.setId(userId);
-
-        taskDTO.setUser(user);
-        taskService.saveTaskWithUserId(taskDTO, userId);
+        taskService.saveTask(taskDTO, userId);
         String successMessage = "Task added successfully!";
         mav.addObject("successMessage", successMessage);
         mav.setViewName("redirect:/tasks?successMessage");
@@ -173,7 +170,7 @@ public class TaskController {
                 taskService.findTaskById(taskDTO.getId());
 
         if (taskOptional.isPresent()) {
-            taskService.updateTask(taskDTO, userId);
+            taskService.saveTask(taskDTO, userId);
         } else {
             String message = String.format("Task with ID: %s not found", taskDTO.getId());
             throw new TaskNotFoundException(message);
@@ -195,9 +192,7 @@ public class TaskController {
 
         if (taskDTOOptional.isPresent()) {
             TaskDTO taskDTO = taskDTOOptional.get();
-            if (!taskDTO.getUser().getId().equals(userId)) {
-                throw new RuntimeException("You are not authorized to delete this task");
-            }
+            log.info("User who owns task: {}", taskDTO);
             taskService.deleteTaskById(id);
         } else {
             String message = String.format("Task with ID: %s not found", id);
